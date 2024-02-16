@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+<head>
+    <!-- ... (diğer head içeriği) -->
+</head>
+
+<body>
+
+    <div class="wrapper">
+        <!-- ... (diğer HTML içeriği) -->
+
+        <section class="sound-clips">
+            <div id="spectrogram-wrapper" class="display-none">
+                <button id="spektrogram-button">Spektrogram</button>
+                <canvas id="spectrogram"></canvas>
+            </div>
+
+            <div id="aciklama" align="center">
+                <!-- ... (diğer açıklamalar) -->
+            </div>
+        </section>
+
+        <!-- ... (diğer HTML içeriği) -->
+    </div>
+
+    <script>
+        // ... (diğer JavaScript kodu)
+
+        const audioElement = document.querySelector("audio");
+
+        // Bu kısım eksikti, kaydedilen ses dosyasını yüklemek için gerekli kod
+        audioElement.src = "kayit.mp3"; // Ses dosyasının adını ve yolunu uygun şekilde belirtin
+
+        // Bu kısım da eksikti, spektrogram verilerini almak için gerekli kod
+        async function loadSpectrogramData() {
+            const waveformData = await getWaveForm(audioElement.src);
+            const processedData = await processWaveForm(waveformData);
+            spectroCtx.clearRect(0, 0, spectroCanvas.width, spectroCanvas.height);
+            for (let x = 0; x < processedData.tickCount; x++) {
+                for (let y = 0; y < processedData.stride; y++) {
+                    spectroCtx.fillStyle = `hsl(0, 100%, ${(processedData.channels[0][y + (x * processedData.stride)] / 255) * 100}%)`;
+                    spectroCtx.fillRect(
+                        x * (spectroCanvas.width / processedData.tickCount),
+                        spectroCanvas.height - (y * spectroCanvas.height / processedData.stride),
+                        spectroCanvas.width / processedData.tickCount,
+                        spectroCanvas.height / processedData.stride
+                    );
+                }
+            }
+            const imageData = await spectroCtx.getImageData(0, 0, spectroCanvas.width, spectroCanvas.height);
+            return imageData;
+        }
+
+        // ... (diğer JavaScript kodu)
+
+        // Kayıt durduğunda spektrogram verilerini yükle
+        mediaRecorder.onstop = async function (e) {
+            spectrogramWrapper.classList.remove("display-none");
+
+            const imageData = await loadSpectrogramData();
+
+            // ... (diğer kodlar)
+        };
+
+        // ... (diğer JavaScript kodu)
+    </script>
+
+</body>
+
+</html>
